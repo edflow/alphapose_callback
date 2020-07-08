@@ -5,20 +5,33 @@ import json
 import os
 from edflow import get_logger
 import glob
+import subprocess
 
 
 def alphapose_callback(root, data_in, data_out, config):
-    logger = get_logger("Alphapose callback")
+    logger = get_logger("Alphapose Callback")
     callback_config = config.get("alphapose_callback")
 
-    alphapose_command = callback_config.get("subprocess_args")
-    indir = callback_config.get("indir")
+    alphapose_config = callback_config.get("config")
+    checkpoint = callback_config.get("checkpoint")
+    cwd = callback_config.get("alphapose_dir")
+    pythonpath = callback_config.get("alphapose_python")
+    infer_script = callback_config.get("infer_script")
+
     outdir = callback_config.get("outdir")
+    indir = callback_config.get("indir")
+
+    outdir = os.path.abspath(os.path.join(root, "model_outputs", outdir))
+    indir = os.path.abspath(os.path.join(root, "model_outputs", indir))
 
     # input_files = REGEX
-    import subprocess
+    command_string = f"{pythonpath} {infer_script} --cfg {alphapose_config} --checkpoint {checkpoint} --indir {indir} --outdir {outdir} --detector yolo"
 
-    subprocess.call(alphapose_command)
+    logger.info("Running command")
+    for c in command_string.split(" "):
+        logger.info(c)
+
+    subprocess.call(command_string, shell=True, cwd=cwd)
     results_file = os.path.join(root, outdir, "alphapose-results.json")
     return results_file
 
