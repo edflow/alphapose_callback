@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import os
 import json
-from alphapose_callback import alphapose_callback
+import alphapose_callback
 
 
 def _make_pose_file(dir, name, offset=0):
@@ -66,8 +66,8 @@ def test_alphapose_callback(tmpdir):
                 "transfer_image",  # indir
                 str(outdir),  # outdir
             ],
-            "indir": "transfer_image",
-            "outdir": str(outdir),
+            "indir": "model_outputs/transfer_image",
+            "outdir": "model_outputs/" + str(outdir),
         },
         "alphapose_pck_callback": {
             "true_poses_file": true_poses_file,
@@ -78,7 +78,7 @@ def test_alphapose_callback(tmpdir):
     data_in = {}
     data_out = {}
 
-    results_file = alphapose_callback.alphapose_callback(
+    results_file = alphapose_callback.inference_callback(
         root, data_in, data_out, config
     )
     assert os.path.isfile(results_file)
@@ -110,9 +110,7 @@ def test_alphapose_pck_callback(tmpdir):
     data_in = {}
     data_out = {}
 
-    callback_data = alphapose_callback.alphapose_pck_callback(
-        root, data_in, data_out, config
-    )
+    callback_data = alphapose_callback.pck_callback(root, data_in, data_out, config)
     assert callback_data["pck"] == 1.0
 
 
@@ -142,7 +140,5 @@ def test_alphapose_pck_callback_V2(tmpdir):
     data_in = {}
     data_out = {}
 
-    callback_data = alphapose_callback.alphapose_pck_callback(
-        root, data_in, data_out, config
-    )
+    callback_data = alphapose_callback.pck_callback(root, data_in, data_out, config)
     assert callback_data["pck"] == 0.0
