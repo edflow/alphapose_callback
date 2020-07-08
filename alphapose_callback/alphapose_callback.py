@@ -42,8 +42,21 @@ def alphapose_pck_callback(root, data_in, data_out, config):
     callback_config = config.get("alphapose_pck_callback")
     true_poses_file = callback_config["true_poses_file"]
     distance_threshold = callback_config["distance_threshold"]
-    pck = pck_from_posefiles(true_poses_file, predicted_poses_file, distance_threshold)
-    return {"pck": pck}
+    if isinstance(distance_threshold, float) or isinstance(distance_threshold, int):
+        pck = pck_from_posefiles(
+            true_poses_file, predicted_poses_file, distance_threshold
+        )
+        logger = get_logger("Alphapose PCK Callback")
+        logger.info(f"PCK@{distance_threshold} : {pck * 100: .02f}%")
+        out = {f"pck@{distance_threshold}": pck}
+    elif isinstance(distance_threshold, list):
+        out = {}
+        for d in distance_threshold:
+            pck = pck_from_posefiles(true_poses_file, predicted_poses_file, d)
+            logger = get_logger("Alphapose PCK Callback")
+            logger.info(f"PCK@{d} : {pck * 100: .02f}%")
+            out[f"pck@{d}"] = pck
+    return out
 
 
 def pck_from_posefiles(true_poses_file, predicted_poses, distance_threshold):
