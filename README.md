@@ -17,14 +17,14 @@ py.test .
 * runs alphapose model on provided image dir after eval op and saves alphapose results in eval folder
 
 ```python
-from alphapose_callback import alphapose_callback
+import alphapose_callback
 class Iterator(TemplateItertor):
     def __init__(...):
         ...
 
     @property
     def callbacks(self):
-        return {"eval_op": {"pose_inference": alphapose_callback.alphapose_callback}}
+        return {"eval_op": {"pose_inference": alphapose_callback.inference_callback}}
 ```
 
 
@@ -46,14 +46,14 @@ alphapose_callback:
 * then loads alphapose results and compares against
 
 ```python
-from alphapose_callback import alphapose_callback
+import alphapose_callback
 class Iterator(TemplateItertor):
     def __init__(...):
         ...
 
     @property
     def callbacks(self):
-        return {"eval_op": {"pck": alphapose_callback.alphapose_pck_callback}}
+        return {"eval_op": {"pck": alphapose_callback.pck_callback}}
 ```
 
 ```yaml
@@ -71,7 +71,7 @@ alphapose_pck_callback:
 ```
 
 
-# Callback in ACtion
+# Callback in Action
 
 ```bash
 
