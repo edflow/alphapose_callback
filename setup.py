@@ -34,7 +34,7 @@ and PyTorch. [Documentation](https://edflow.readthedocs.io/)"""
 setup(
     name="alphapose_callback",
     version=__version__,
-    description="Pose estimation and PCK calculation callback for edflow callbacks.",
+    description="Pose estimation and PCK calculation callback for edflow callbacks based on AlphaPose Model",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/edflow/alphapose_callback",
@@ -46,7 +46,7 @@ setup(
     install_requires=install_requires,
     extras_require=extras_require,
     zip_safe=False,
-    scripts=[],
+    scripts=["alphapose_callback_inference", "alphapose_callback_pck"],
     python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python :: 3 :: Only",

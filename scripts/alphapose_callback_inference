@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+import yaml
+import click
+import alphapose_callback
+
+@click.command()
+@click.argument("root")
+@click.argument("config_file")
+def main(root, config_file):
+    with open(config_file) as file:
+        config = yaml.load(file, Loader=yaml.FullLoader)
+    results_file = alphapose_callback.inference_callback(root, {}, {}, config)
+    print(f"created results file in : {results_file}")
+
+if __name__ == "__main__":
+    main()
+    
