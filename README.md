@@ -68,6 +68,40 @@ alphapose_callback:
 alphapose_pck_callback: 
     true_poses_file: /abspath/alphapose_true_poses.json
     distance_threshold: [10, 20, 30] # will run calculation with all these parameters
+    keypoints_to_use: [
+        "Nose",
+        "LShoulder",
+        "RShoulder",
+        "LElbow",
+        "RElbow",
+        "LWrits",
+        "RWrist",
+        "LHip",
+        "RHip",
+        "LKnee",
+        "RKnee",
+        "LAnkle",
+        "RAnkle"
+    ]
+    joint_order : [ # COCO https://github.com/MVIG-SJTU/AlphaPose/blob/master/docs/output.md
+    "Nose",
+    "LEye",
+    "REye",
+    "LEar",
+    "REar",
+    "LShoulder",
+    "RShoulder",
+    "LElbow",
+    "RElbow",
+    "LWrist",
+    "RWrist",
+    "LHip",
+    "RHip",
+    "LKnee",
+    "Rknee",
+    "LAnkle",
+    "RAnkle"
+    ]
 ```
 
 

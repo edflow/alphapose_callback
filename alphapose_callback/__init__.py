@@ -8,6 +8,45 @@ import glob
 import subprocess
 
 
+# COCO https://github.com/MVIG-SJTU/AlphaPose/blob/master/docs/output.md
+DEFAULT_KEYPOINTS_TO_USE = [
+    "Nose",
+    "LShoulder",
+    "RShoulder",
+    "LElbow",
+    "RElbow",
+    "LWrist",
+    "RWrist",
+    "LHip",
+    "RHip",
+    "LKnee",
+    "RKnee",
+    "LAnkle",
+    "RAnkle",
+]
+
+
+DEFAULT_JOINT_ORDER = [
+    "Nose",
+    "LEye",
+    "REye",
+    "LEar",
+    "REar",
+    "LShoulder",
+    "RShoulder",
+    "LElbow",
+    "RElbow",
+    "LWrist",
+    "RWrist",
+    "LHip",
+    "RHip",
+    "LKnee",
+    "RKnee",
+    "LAnkle",
+    "RAnkle",
+]
+
+
 def inference_callback(root, data_in, data_out, config):
     logger = get_logger("Alphapose Callback")
     callback_config = config.get("alphapose_callback")
@@ -23,9 +62,10 @@ def inference_callback(root, data_in, data_out, config):
 
     outdir = os.path.abspath(os.path.join(root, outdir))
     indir = os.path.abspath(os.path.join(root, indir))
+    os.makedirs(outdir, exist_ok=True)
 
     # input_files = REGEX
-    command_string = f"{pythonpath} {infer_script} --cfg {alphapose_config} --checkpoint {checkpoint} --indir {indir} --outdir {outdir} --detector yolo"
+    command_string = f"{pythonpath} {infer_script} --cfg {alphapose_config} --checkpoint {checkpoint} --indir {indir} --outdir {outdir} --save_img --detector yolo --vis_fast"
 
     logger.info("Running command")
     for c in command_string.split(" "):
@@ -42,9 +82,15 @@ def pck_callback(root, data_in, data_out, config):
     callback_config = config.get("alphapose_pck_callback")
     true_poses_file = callback_config["true_poses_file"]
     distance_threshold = callback_config["distance_threshold"]
+    keypoints_to_use = callback_config["keypoints_to_use"]
+    joint_order = callback_config["joint_order"]
     if isinstance(distance_threshold, float) or isinstance(distance_threshold, int):
         pck = pck_from_posefiles(
-            true_poses_file, predicted_poses_file, distance_threshold
+            true_poses_file,
+            predicted_poses_file,
+            distance_threshold,
+            keypoints_to_use,
+            joint_order,
         )
         logger = get_logger("Alphapose PCK Callback")
         logger.info(f"PCK@{distance_threshold} : {pck * 100: .02f}%")
@@ -59,7 +105,13 @@ def pck_callback(root, data_in, data_out, config):
     return out
 
 
-def pck_from_posefiles(true_poses_file, predicted_poses, distance_threshold):
+def pck_from_posefiles(
+    true_poses_file,
+    predicted_poses,
+    distance_threshold,
+    joint_order=DEFAULT_JOINT_ORDER,
+    keypoints_to_use=DEFAULT_KEYPOINTS_TO_USE,
+):
     """Calculate PCK from 2 annotation files generated from alpha pose model.
 
     The file names for each annotated image in both pose files have to match.
@@ -91,6 +143,10 @@ def pck_from_posefiles(true_poses_file, predicted_poses, distance_threshold):
             kp_scores_predicted[:, :2],
             kp_scores_predicted[:, -1],
         )
+        kp_filter = np.array([joint_order.index(kp) for kp in keypoints_to_use])
+        kp_true = kp_true[kp_filter]
+        kp_predicted = kp_predicted[kp_filter]
+
         pck_value = pck(kp_true, kp_predicted, distance_threshold)
         pck_values.append(pck_value)
     return np.mean(pck_values)
